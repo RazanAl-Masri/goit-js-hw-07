@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript DOM Tasks</title>
+    <style>
+        .gallery {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+        }
+
+        .gallery img {
+            width: 300px;
+        }
+
+        #boxes div {
+            margin: 5px;
+            display: inline-block;
+        }
+
+        .widget {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Task 1: Categories -->
+    <section>
+        <ul id="categories">
+            <li class="item">
+                <h2>Animals</h2>
+                <ul>
+                    <li>Cat</li>
+                    <li>Hamster</li>
+                    <li>Horse</li>
+                    <li>Parrot</li>
+                </ul>
+            </li>
+            <li class="item">
+                <h2>Products</h2>
+                <ul>
+                    <li>Bread</li>
+                    <li>Parsley</li>
+                    <li>Cheese</li>
+                </ul>
+            </li>
+            <li class="item">
+                <h2>Technologies</h2>
+                <ul>
+                    <li>HTML</li>
+                    <li>CSS</li>
+                    <li>JavaScript</li>
+                    <li>React</li>
+                    <li>Node.js</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <!-- Task 2: Image Gallery -->
+    <section>
+        <ul class="gallery"></ul>
+    </section>
+
+    <!-- Task 3: Input Greeting -->
+    <section>
+        <input type="text" id="name-input" placeholder="Please enter your name" />
+        <h1>Hello, <span id="name-output">Anonymous</span>!</h1>
+    </section>
+
+    <!-- Task 4: Login Form -->
+    <section>
+        <form class="login-form">
+            <label>
+                Email
+                <input type="email" name="email" />
+            </label>
+            <label>
+                Password
+                <input type="password" name="password" />
+            </label>
+            <button type="submit">Log in</button>
+        </form>
+    </section>
+
+    <!-- Task 5: Background Color Changer -->
+    <section>
+        <div class="widget">
+            <p>Background color: <span class="color">-</span></p>
+            <button type="button" class="change-color">Change color</button>
+        </div>
+    </section>
+
+    <!-- Task 6: Create and Destroy Boxes -->
+    <section>
+        <div id="controls">
+            <input type="number" min="1" max="100" step="1" />
+            <button type="button" data-create>Create</button>
+            <button type="button" data-destroy>Destroy</button>
+        </div>
+        <div id="boxes"></div>
+    </section>
+
+    <script>
+        // Task 1: Categories
+        const categoriesEl = document.querySelectorAll('ul#categories > li.item');
+        console.log(`Number of categories: ${categoriesEl.length}`);
+
+        categoriesEl.forEach(category => {
+            const title = category.querySelector('h2').textContent;
+            const itemsCount = category.querySelectorAll('ul li').length;
+            console.log(`Category: ${title}`);
+            console.log(`Elements: ${itemsCount}`);
+        });
+
+        // Task 2: Image Gallery
+        const images = [
+            {
+                url: "https://images.pexels.com/photos/140134/pexels-photo-140134.jpeg?dpr=2&h=750&w=1260",
+                alt: "White and Black Long Fur Cat",
+            },
+            {
+                url: "https://images.pexels.com/photos/213399/pexels-photo-213399.jpeg?dpr=2&h=750&w=1260",
+                alt: "Orange and White Koi Fish Near Yellow Koi Fish",
+            },
+            {
+                url: "https://images.pexels.com/photos/219943/pexels-photo-219943.jpeg?dpr=2&h=750&w=1260",
+                alt: "Group of Horses Running",
+            },
+        ];
+
+        const galleryEl = document.querySelector('.gallery');
+        const galleryItems = images.map(({ url, alt }) => 
+            `<li><img src="${url}" alt="${alt}" width="300"></li>`).join('');
+        galleryEl.insertAdjacentHTML('beforeend', galleryItems);
+
+        // Task 3: Input Greeting
+        const inputEl = document.querySelector('#name-input');
+        const outputEl = document.querySelector('#name-output');
+
+        inputEl.addEventListener('input', (event) => {
+            const name = event.target.value.trim();
+            outputEl.textContent = name ? name : 'Anonymous';
+        });
+
+        // Task 4: Login Form
+        const formEl = document.querySelector('.login-form');
+
+        formEl.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const email = formEl.elements.email.value.trim();
+            const password = formEl.elements.password.value.trim();
+
+            if (!email || !password) {
+                alert('All form fields must be filled in');
+                return;
+            }
+
+            const formData = {
+                email,
+                password
+            };
+
+            console.log(formData);
+            formEl.reset();
+        });
+
+        // Task 5: Background Color Changer
+        function getRandomHexColor() {
+            return `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, 0)}`;
+        }
+
+        const buttonEl = document.querySelector('.change-color');
+        const colorTextEl = document.querySelector('.color');
+
+        buttonEl.addEventListener('click', () => {
+            const newColor = getRandomHexColor();
+            document.body.style.backgroundColor = newColor;
+            colorTextEl.textContent = newColor;
+        });
+
+        // Task 6: Create and Destroy Boxes
+        const controlsEl = document.getElementById('controls');
+        const inputElBoxes = controlsEl.querySelector('input[type="number"]');
+        const createButtonEl = controlsEl.querySelector('button[data-create]');
+        const destroyButtonEl = controlsEl.querySelector('button[data-destroy]');
+        const boxesEl = document.getElementById('boxes');
+
+        createButtonEl.addEventListener('click', () => {
+            const amount = parseInt(inputElBoxes.value);
+            if (amount < 1 || amount > 100 || isNaN(amount)) {
+                alert('Please enter a number between 1 and 100');
+                return;
+            }
+            createBoxes(amount);
+            inputElBoxes.value = '';
+        });
+
+        destroyButtonEl.addEventListener('click', destroyBoxes);
+
+        function createBoxes(amount) {
+            destroyBoxes(); // Clear previous boxes
+            const boxes = [];
+            let size = 30;
+
+            for (let i = 0; i < amount; i++) {
+                const div = document.createElement('div');
+                div.style.width = `${size}px`;
+                div.style.height = `${size}px`;
+                div.style.backgroundColor = getRandomHexColor();
+                boxes.push(div);
+                size += 10;
+            }
+
+            boxesEl.append(...boxes);
+        }
+
+        function destroyBoxes() {
+            boxesEl.innerHTML = '';
+        }
+    </script>
+
+</body>
+</html>
